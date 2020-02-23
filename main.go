@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os"
@@ -53,8 +54,22 @@ func main() {
 	r.HandleFunc("/", defaultHandler).Methods("GET")
 	r.HandleFunc("/status/{statusCode}", statusHandler)
 
+	corsOpts := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedHeaders: []string{"*"},
+		AllowedMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+			http.MethodOptions,
+			http.MethodHead,
+		},
+	})
+
 	logger.Println("Start Server")
-	if err := http.ListenAndServe(serverAddr, r); err != nil {
+	if err := http.ListenAndServe(serverAddr, corsOpts.Handler(r)); err != nil {
 		logger.Printf("%+v", err)
 		os.Exit(1)
 	}
