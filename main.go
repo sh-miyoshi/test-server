@@ -2,34 +2,15 @@ package main
 
 import (
 	"flag"
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 var logger = log.New(os.Stderr, "[TESTSERVER]", log.LUTC|log.LstdFlags)
-
-func defaultHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("ok"))
-}
-
-func statusHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	statusStr := vars["statusCode"]
-
-	logger.Printf("Status handler called with staus code: %s", statusStr)
-
-	statusCode, err := strconv.Atoi(statusStr)
-	if err != nil {
-		http.Error(w, "Failed to convert to integer", http.StatusBadRequest)
-		return
-	}
-
-	http.Error(w, "Status Write", statusCode)
-}
 
 func main() {
 	var logFile string
@@ -52,6 +33,8 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", defaultHandler).Methods("GET")
+	r.HandleFunc("/hello", statusHandler).Methods("GET")
+	r.HandleFunc("/echo", statusHandler).Methods("POST")
 	r.HandleFunc("/status/{statusCode}", statusHandler)
 
 	corsOpts := cors.New(cors.Options{
