@@ -33,8 +33,8 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", defaultHandler).Methods("GET")
-	r.HandleFunc("/hello", statusHandler).Methods("GET")
-	r.HandleFunc("/echo", statusHandler).Methods("POST")
+	r.HandleFunc("/hello", helloHandler).Methods("GET")
+	r.HandleFunc("/echo", echoHandler).Methods("POST")
 	r.HandleFunc("/status/{statusCode}", statusHandler)
 
 	corsOpts := cors.New(cors.Options{
