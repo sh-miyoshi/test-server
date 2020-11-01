@@ -34,7 +34,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 
 func echoHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Printf("Echo handler called with Content Length: %d[byte]", r.ContentLength)
-	w.Header().Set("Content-Length", string(r.ContentLength))
+	w.Header().Set("Content-Length", strconv.Itoa(int(r.ContentLength)))
 	_, err := io.Copy(w, r.Body)
 	if err != nil {
 		http.Error(w, "Internal Server Error ", http.StatusInternalServerError)
