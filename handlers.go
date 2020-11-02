@@ -41,3 +41,20 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func downloadHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	byteSizeStr := vars["bytesize"]
+	logger.Printf("Download handler called with bytesize: %s", byteSizeStr)
+	byteSize, err := strconv.Atoi(byteSizeStr)
+	if err != nil {
+		logger.Printf("Failed to convert bytesize: %v", err)
+		http.Error(w, "BatRequest", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/octet-stream")
+	w.Header().Add("Content-Length", byteSizeStr)
+	reader := newRandReader(byteSize)
+	io.Copy(w, reader)
+}

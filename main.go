@@ -36,6 +36,7 @@ func main() {
 	r.HandleFunc("/hello", helloHandler).Methods("GET")
 	r.HandleFunc("/echo", echoHandler).Methods("POST")
 	r.HandleFunc("/status/{statusCode}", statusHandler)
+	r.HandleFunc("/download/{bytesize}", downloadHandler).Methods("GET")
 
 	corsOpts := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
