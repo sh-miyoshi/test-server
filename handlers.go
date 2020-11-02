@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -57,4 +58,9 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Length", byteSizeStr)
 	reader := newRandReader(byteSize)
 	io.Copy(w, reader)
+}
+
+func discardHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Printf("Discard handler called with Content Length: %d[byte]", r.ContentLength)
+	io.Copy(ioutil.Discard, r.Body)
 }
