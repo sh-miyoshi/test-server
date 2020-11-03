@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -36,8 +37,27 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 func echoHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Printf("Echo handler called with Content Length: %d[byte]", r.ContentLength)
 	w.Header().Set("Content-Length", strconv.Itoa(int(r.ContentLength)))
-	_, err := io.Copy(w, r.Body)
+
+	tmpFile, err := ioutil.TempFile("", "")
 	if err != nil {
+		logger.Printf("Failed to create temporary file: %v", err)
+		http.Error(w, "Internal Server Error ", http.StatusInternalServerError)
+		return
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err := io.Copy(tmpFile, r.Body); err != nil {
+		logger.Printf("Failed to read request: %v", err)
+		http.Error(w, "Internal Server Error ", http.StatusInternalServerError)
+		return
+	}
+	tmpFile.Close()
+
+	tmpFile, _ = os.Open(tmpFile.Name())
+	len, err := io.Copy(w, tmpFile)
+	logger.Printf("Response %d[byte]", len)
+	if err != nil {
+		logger.Printf("Failed to write response: %v", err)
 		http.Error(w, "Internal Server Error ", http.StatusInternalServerError)
 		return
 	}
