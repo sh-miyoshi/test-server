@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"strconv"
 
@@ -11,6 +12,9 @@ import (
 )
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
+	dump, _ := httputil.DumpRequest(r, false)
+	logger.Printf("dumped request: %q", dump)
+
 	w.Write([]byte("ok"))
 }
 
