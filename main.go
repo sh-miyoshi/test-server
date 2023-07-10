@@ -15,8 +15,10 @@ var logger = log.New(os.Stderr, "[TESTSERVER]", log.LUTC|log.LstdFlags)
 func main() {
 	var logFile string
 	var serverAddr string
+	var isTLS bool
 	flag.StringVar(&logFile, "logfile", "", "file name for log, output to stdout if empty")
 	flag.StringVar(&serverAddr, "server", "0.0.0.0:10000", "bind addr for server")
+	flag.BoolVar(&isTLS, "tls", false, "use tls if true")
 	flag.Parse()
 
 	// output log to file
@@ -53,9 +55,17 @@ func main() {
 		},
 	})
 
-	logger.Println("Start Server")
-	if err := http.ListenAndServe(serverAddr, corsOpts.Handler(r)); err != nil {
-		logger.Printf("%+v", err)
-		os.Exit(1)
+	if isTLS {
+		logger.Println("Start Server with TLS")
+		if err := http.ListenAndServeTLS(serverAddr, "certs/localhost.crt", "certs/localhost.key", corsOpts.Handler(r)); err != nil {
+			logger.Printf("%+v", err)
+			os.Exit(1)
+		}
+	} else {
+		logger.Println("Start Server")
+		if err := http.ListenAndServe(serverAddr, corsOpts.Handler(r)); err != nil {
+			logger.Printf("%+v", err)
+			os.Exit(1)
+		}
 	}
 }
